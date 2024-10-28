@@ -1,5 +1,6 @@
 package com.visionbagel;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -23,7 +24,7 @@ import jakarta.persistence.Id;
  * }
  */
 @Entity
-public class MyEntity {
+public class MyEntity extends PanacheEntityBase {
     @Id
     @GeneratedValue
     public Long id;
