@@ -1,4 +1,4 @@
-package com.visionbagel.resources;
+package com.visionbagel.repositorys;
 
 import com.visionbagel.entitys.Example;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;

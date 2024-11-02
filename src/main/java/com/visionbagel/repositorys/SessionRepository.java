@@ -1,14 +1,12 @@
-package com.visionbagel.resources;
+package com.visionbagel.repositorys;
 
 
-import com.opensponsor.entitys.CountryCodes;
-import com.opensponsor.entitys.User;
-import com.opensponsor.payload.LoginBody;
-import com.opensponsor.payload.RegisterBody;
-import com.opensponsor.utils.GenerateViolationReport;
-import com.opensponsor.utils.SecurityTools;
-import com.opensponsor.utils.TokenTools;
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import com.visionbagel.entitys.User;
+import com.visionbagel.payload.LoginBody;
+import com.visionbagel.payload.RegisterBody;
+import com.visionbagel.utils.GenerateViolationReport;
+import com.visionbagel.utils.SecurityTools;
+import com.visionbagel.utils.TokenTools;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -19,10 +17,9 @@ import org.jboss.resteasy.api.validation.ViolationReport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @ApplicationScoped
-public class SessionRepository implements PanacheRepositoryBase<User, UUID> {
+public class SessionRepository extends RepositoryBase<User> {
     private ViolationReport violationReport;
 
     @Inject
@@ -34,8 +31,6 @@ public class SessionRepository implements PanacheRepositoryBase<User, UUID> {
     public User create(RegisterBody registerBody) {
         User user = new User();
         user.username = registerBody.username;
-        user.legalName = registerBody.legalName;
-        user.countryCode = CountryCodes.findById(registerBody.countryCode.id);
         user.sex = registerBody.sex;
         user.password = securityTools.generatePassword(registerBody.password);
 
