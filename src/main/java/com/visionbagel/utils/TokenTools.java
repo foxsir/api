@@ -22,7 +22,7 @@ public class TokenTools {
             .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         Instant now = Instant.now();
-        String tokenString = Jwt.issuer("https://opensponsor.com")
+        String tokenString = Jwt.issuer("https://visionbagel.com")
             .upn(user.username)
             .groups(new HashSet<>(roles))
             .expiresIn(Duration.ofDays(30))

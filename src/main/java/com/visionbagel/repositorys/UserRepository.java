@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
-import java.util.UUID;
 
 @ApplicationScoped
 public class UserRepository extends RepositoryBase<User> {
