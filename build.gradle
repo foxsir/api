@@ -26,6 +26,7 @@ dependencies {
     implementation "ai.fal.client:fal-client:0.7.1"
     implementation "com.squareup.okhttp3:okhttp:3.14.9"
     implementation 'com.alipay.sdk:alipay-sdk-java:4.39.246.ALL'
+    implementation 'com.baidu.aip:java-sdk:4.16.19'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }
