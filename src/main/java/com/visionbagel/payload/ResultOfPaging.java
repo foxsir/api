@@ -1,13 +1,11 @@
 package com.visionbagel.payload;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
-import org.hibernate.query.Query;
 
 import java.util.List;
 
-public class ResultOfPaging<T extends PanacheEntityBase> {
+public class ResultOfPaging<T> {
     public long currentPageNumber;
     public long lastPageNumber;
     public long pageSize;
@@ -18,10 +16,14 @@ public class ResultOfPaging<T extends PanacheEntityBase> {
     public List<T> records;
 
     public ResultOfPaging(PanacheQuery<T> panacheQuery, Page page) {
+        System.out.println("page.sizepage.sizepage.size");
+        System.out.println("page.sizepage.sizepage.size");
+        System.out.println("page.sizepage.sizepage.size");
+        System.out.println(page.size);
         PanacheQuery<T> query = panacheQuery.page(page.index - 1, page.size);
         currentPageNumber = page.index;
         lastPageNumber = query.pageCount();
-        pageSize = query.count();
+        pageSize = page.size;
         totalRecords = panacheQuery.count();
         records = query.list();
     }
