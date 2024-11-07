@@ -42,3 +42,4 @@ nb-configuration.xml
 
 **/resources/jwt
 **/resources/alipay
+**/resources/application.properties
