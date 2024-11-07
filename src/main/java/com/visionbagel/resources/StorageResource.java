@@ -38,9 +38,9 @@ public class StorageResource {
         String region = "cn-beijing";
 
         String accessKeyId = FileTools.getResource("alioss/accessKeyId.txt");
-        String accessKeySecret = FileTools.getResource("alioss/accessKeySecret.txt");
+        String accessKeyS = FileTools.getResource("alioss/accessKeySecret.txt");
 
-        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeySecret);
+        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeyS);
 
         // 创建OSSClient实例。
         ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
