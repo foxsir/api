@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'io.quarkus:quarkus-resteasy-multipart'
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-hibernate-orm-rest-data-panache'
     implementation 'io.quarkus:quarkus-hibernate-orm'
@@ -26,6 +27,9 @@ dependencies {
     implementation "ai.fal.client:fal-client:0.7.1"
     implementation "com.squareup.okhttp3:okhttp:3.14.9"
     implementation 'com.alipay.sdk:alipay-sdk-java:4.39.246.ALL'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'
+    // https://mvnrepository.com/artifact/com.bea.xml.stream/org.motechproject.com.bea.xml.stream
+    implementation 'stax:stax:1.2.0'
     implementation 'com.baidu.aip:java-sdk:4.16.19'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
