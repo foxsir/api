@@ -4,7 +4,7 @@ import io.quarkus.panache.common.Page;
 import jakarta.ws.rs.QueryParam;
 
 public class PageParams {
-    private static final int miniSize = 20;
+    private static final int miniSize = 2;
     private static final int maxSize = 40;
 
     @QueryParam("page")

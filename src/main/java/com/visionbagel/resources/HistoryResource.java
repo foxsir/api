@@ -1,7 +1,12 @@
 package com.visionbagel.resources;
 
 import com.visionbagel.entitys.History;
+import com.visionbagel.payload.PageParams;
+import com.visionbagel.payload.ResultOfPaging;
 import com.visionbagel.repositorys.HistoryRepository;
+import com.visionbagel.repositorys.UserRepository;
+import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -38,6 +43,9 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 public class HistoryResource {
 
     @Inject
+    public UserRepository userRepository;
+
+    @Inject
     public HistoryRepository historyRepository;
 
     @Tag(name = "History", description = "Operations related to History")
@@ -60,5 +68,31 @@ public class HistoryResource {
             .status(200)
             .entity(this.historyRepository.create(history))
             .build();
+    }
+
+    @Tag(name = "History", description = "Operations related to History")
+    @Operation(summary = "Create History")
+    @APIResponse(
+            responseCode = "200",
+            description = "Create History",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                            implementation = History.class
+                    )
+            )
+    )
+    @GET()
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response get(@BeanParam PageParams pageParams) {
+        return Response
+                .status(200)
+                .entity(
+                        new ResultOfPaging<>(
+                                History.find("user", Sort.by("whenCreated"), userRepository.authUser()),
+                                PageParams.of(pageParams)
+                        )
+                )
+                .build();
     }
 }

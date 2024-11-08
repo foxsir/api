@@ -1,7 +1,10 @@
 package com.visionbagel.resources;
 
 import com.alipay.api.AlipayApiException;
+import com.baidu.aip.contentcensor.AipContentCensor;
 import com.visionbagel.entitys.Example;
+import com.visionbagel.entitys.User;
+import com.visionbagel.entitys.Wallet;
 import com.visionbagel.payload.PageParams;
 import com.visionbagel.payload.ResultOfPaging;
 import com.visionbagel.repositorys.ExampleRepository;
@@ -13,7 +16,6 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -26,6 +28,9 @@ import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.api.validation.ViolationReport;
+import org.json.JSONObject;
+
+import java.util.UUID;
 
 @OpenAPIDefinition(
     tags = {
@@ -78,6 +83,11 @@ public class ExampleResource {
     @Transactional
     @Produces(MediaType.TEXT_HTML)
     public String hello(@BeanParam Example params, @BeanParam PageParams pageParams) throws AlipayApiException {
-        return AlipayTradeWapPay.generateOrder();
+//        Wallet wallet = new Wallet();
+//        wallet.balance = 100;
+//        wallet.user = User.findById(UUID.fromString("36e149e3-ed38-42ef-83ca-fad1f9f10303"));
+//        wallet.persistAndFlush();
+        return "x";
+        // return AlipayTradeWapPay.generateOrder();
     }
 }
