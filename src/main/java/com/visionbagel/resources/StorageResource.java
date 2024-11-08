@@ -3,29 +3,48 @@ package com.visionbagel.resources;
 import com.aliyun.oss.*;
 import com.aliyun.oss.common.comm.SignVersion;
 import com.visionbagel.payload.ResultOfData;
+import com.visionbagel.payload.SingleFileBody;
 import com.visionbagel.utils.FileTools;
+import com.visionbagel.utils.MediaTools;
+import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.File;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
 import com.aliyun.oss.common.auth.*;
 import com.aliyun.oss.model.PutObjectRequest;
 import com.aliyun.oss.model.PutObjectResult;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Path("/storage")
 @RolesAllowed({"User"})
 public class StorageResource {
+    private static final Logger log = LoggerFactory.getLogger(StorageResource.class);
+
+    @ConfigProperty(name = "alioss.domain")
+    public String ossDomain;
+
     @POST()
     @Transactional
     @Produces(MediaType.APPLICATION_JSON)
-    public Response hello() {
-        // @FormParam("image") File file
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response update(@Valid @MultipartForm SingleFileBody data) throws IOException {
 
         // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
         String endpoint = "https://oss-cn-beijing.aliyuncs.com";
@@ -33,14 +52,15 @@ public class StorageResource {
         // 填写Bucket名称，例如examplebucket。
         String bucketName = "visionbagel";
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
-        String objectName = "exampledir/exampleobject.txt";
         // 填写Bucket所在地域。以华东1（杭州）为例，Region填写为cn-hangzhou。
         String region = "cn-beijing";
 
         String accessKeyId = FileTools.getResource("alioss/accessKeyId.txt");
-        String accessKeyS = FileTools.getResource("alioss/accessKeySecret.txt");
+        String accessKeySecret = FileTools.getResource("alioss/accessKeySecret.txt");
 
-        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeyS);
+        assert accessKeyId != null;
+        assert accessKeySecret != null;
+        CredentialsProvider credentialsProvider = new DefaultCredentialProvider(accessKeyId, accessKeySecret);
 
         // 创建OSSClient实例。
         ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
@@ -52,12 +72,12 @@ public class StorageResource {
                 .region(region)
                 .build();
 
-        try {
-            // 填写字符串。
-            String content = "Hello OSS，你好世界";
+        String objectName = String.join(".", UUID.randomUUID().toString(), MediaTools.getImageExtensionName(data.file).toLowerCase());
 
+        try {
             // 创建PutObjectRequest对象。
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, new ByteArrayInputStream(content.getBytes()));
+//            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, new ByteArrayInputStream(content.getBytes()));
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, data.file);
 
             // 如果需要上传时设置存储类型和访问权限，请参考以下示例代码。
             // ObjectMetadata metadata = new ObjectMetadata();
@@ -66,7 +86,7 @@ public class StorageResource {
             // putObjectRequest.setMetadata(metadata);
 
             // 上传字符串。
-            PutObjectResult result = ossClient.putObject(putObjectRequest);
+            ossClient.putObject(putObjectRequest);
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
@@ -80,14 +100,13 @@ public class StorageResource {
                     + "such as not being able to access the network.");
             System.out.println("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
 
+        String url = String.join("/", ossDomain, objectName);
         return Response
                 .status(Response.Status.OK.getStatusCode())
-                .entity(new ResultOfData<>())
+                .entity(new ResultOfData<>(Map.of("url", url)))
                 .build();
     }
 }
