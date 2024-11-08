@@ -2,6 +2,7 @@ package com.visionbagel.resources;
 
 import com.visionbagel.entitys.User;
 import com.visionbagel.entitys.Wallet;
+import com.visionbagel.payload.ResultOfData;
 import com.visionbagel.repositorys.UserRepository;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -39,9 +40,13 @@ public class WalletResource {
         Optional<Wallet> wallet = Wallet.find("user", user).firstResultOptional();
 
         if(wallet.isPresent()) {
-            return Response.status(Response.Status.OK.getStatusCode()).entity(wallet.get()).build();
+            return Response.status(Response.Status.OK.getStatusCode()).entity(
+                    new ResultOfData<>(wallet.get())
+            ).build();
         } else {
-            return Response.status(Response.Status.FORBIDDEN).entity(new Wallet()).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                new ResultOfData<>(new Wallet())
+            ).build();
         }
     }
 }

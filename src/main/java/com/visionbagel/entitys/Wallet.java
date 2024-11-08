@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -27,7 +28,8 @@ public class Wallet extends PanacheEntityBase {
     public User user;
 
     @Schema(description = "wallet balance", required = true)
-    public Integer balance;
+    @Column(precision = 10, scale = 2)
+    public BigDecimal balance;
 
     @CreationTimestamp
     @Schema(description = "when created", required = true)
