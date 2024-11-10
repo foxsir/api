@@ -2,6 +2,7 @@ package com.visionbagel.resources;
 
 import com.aliyun.oss.*;
 import com.aliyun.oss.common.comm.SignVersion;
+import com.aliyun.oss.model.ObjectMetadata;
 import com.visionbagel.payload.ResultOfData;
 import com.visionbagel.payload.SingleFileBody;
 import com.visionbagel.utils.FileTools;
@@ -72,7 +73,8 @@ public class StorageResource {
                 .region(region)
                 .build();
 
-        String objectName = String.join(".", UUID.randomUUID().toString(), MediaTools.getImageExtensionName(data.file).toLowerCase());
+        String suffix = MediaTools.getImageExtensionName(data.file).toLowerCase();
+        String objectName = String.join(".", UUID.randomUUID().toString(), suffix);
 
         try {
             // 创建PutObjectRequest对象。
@@ -86,6 +88,9 @@ public class StorageResource {
             // putObjectRequest.setMetadata(metadata);
 
             // 上传字符串。
+            ObjectMetadata meta = new ObjectMetadata();
+            meta.setContentType(String.format("image/%s", suffix));
+            putObjectRequest.setMetadata(meta);
             ossClient.putObject(putObjectRequest);
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
