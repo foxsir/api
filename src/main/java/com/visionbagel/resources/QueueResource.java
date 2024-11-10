@@ -129,8 +129,6 @@ public class QueueResource {
             // 检查余额
             Optional<Wallet> wallet = Wallet.find("user", userRepository.authUser()).firstResultOptional();
             if(wallet.isPresent()) {
-                log.info("check balance");
-                System.out.println(wallet.get().balance.compareTo(BigDecimal.valueOf(0)));
                 if(wallet.get().balance.compareTo(BigDecimal.valueOf(0)) <= 0) {
                     return Response.
                             status(HttpResponseStatus.BAD_REQUEST.code())
