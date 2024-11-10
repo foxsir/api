@@ -1,8 +1,10 @@
 package com.visionbagel.repositorys;
 
 
+import com.visionbagel.entitys.SmsCode;
 import com.visionbagel.entitys.User;
 import com.visionbagel.payload.LoginBody;
+import com.visionbagel.payload.LoginForSMSBody;
 import com.visionbagel.payload.RegisterBody;
 import com.visionbagel.utils.GenerateViolationReport;
 import com.visionbagel.utils.SecurityTools;
@@ -75,6 +77,32 @@ public class SessionRepository extends RepositoryBase<User> {
             }
         }
         return null;
+    }
+
+    @Transactional
+    public User login(LoginForSMSBody loginBody) {
+        Optional<User> user = User.find("username", loginBody.mobile).firstResultOptional();
+        Optional<SmsCode> code = SmsCode
+                .find("mobile = ?1 and code = ?2", loginBody.mobile, loginBody.code)
+                .firstResultOptional();
+
+        if(user.isPresent()) {
+            if(code.isPresent()) {
+                User authUser = user.get();
+                tokenTools.generate(authUser, List.of("User"));
+                return authUser;
+            } else {
+                return null;
+            }
+        } else {
+            // create new user
+            User newUser = new User();
+            newUser.phoneNumber = loginBody.mobile;
+            newUser.username = loginBody.mobile;
+            newUser.persistAndFlush();
+            tokenTools.generate(newUser, List.of("User"));
+            return newUser;
+        }
     }
 
     public ViolationReport getViolationReport() {

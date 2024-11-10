@@ -2,7 +2,9 @@ package com.visionbagel.resources;
 
 import com.visionbagel.entitys.User;
 import com.visionbagel.payload.LoginBody;
+import com.visionbagel.payload.LoginForSMSBody;
 import com.visionbagel.payload.RegisterBody;
+import com.visionbagel.payload.ResultOfData;
 import com.visionbagel.repositorys.SessionRepository;
 import com.visionbagel.repositorys.UserRepository;
 import com.visionbagel.utils.GenerateViolationReport;
@@ -44,22 +46,22 @@ public class SessionResource {
 
     @POST
     @Path("login")
-    @Operation(summary = "Update an existing pet")
+    @Operation(summary = "User login")
     @APIResponse(
         responseCode = "200",
-        description = "User List",
+        description = "successful",
         content = @Content(
             schema = @Schema(
-                implementation = LoginBody.class,
+                implementation = LoginForSMSBody.class,
                 properties = {
-                    @SchemaProperty(name = "list", type = SchemaType.ARRAY, implementation = User.class),
+                    @SchemaProperty(name = "data", type = SchemaType.ARRAY, implementation = User.class),
                 }
             )
         )
     )
     @APIResponse(
         responseCode = "400",
-        description = "User not found",
+        description = "sms code is not valid",
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(
@@ -67,19 +69,12 @@ public class SessionResource {
             )
         )
     )
-    public Response login(@Valid LoginBody loginBody) {
+    public Response login(@Valid LoginForSMSBody loginBody) {
         User user = sessionRepository.login(loginBody);
-        if(user != null) {
-            return Response
+        return Response
                 .status(HttpResponseStatus.OK.code())
-                .entity(user)
+                .entity(new ResultOfData<>(user))
                 .build();
-        } else {
-            return Response
-                .status(HttpResponseStatus.BAD_REQUEST.code())
-                .entity(generateViolationReport.exception("用户不存在").build())
-                .build();
-        }
     }
 
     @POST

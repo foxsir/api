@@ -58,7 +58,7 @@ public class User extends PanacheEntityBase {
     public String role;
 
     @Comment("password")
-    @Column(length = 60, nullable = false)
+    @Column(length = 60)
     @Password
     @JsonIgnore
     @Schema(description = "password")
