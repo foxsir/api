@@ -28,6 +28,8 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:3.14.9"
     implementation 'com.alipay.sdk:alipay-sdk-java:4.39.246.ALL'
     implementation 'com.aliyun.oss:aliyun-sdk-oss:3.18.1'
+    // https://mvnrepository.com/artifact/com.aliyun/aliyun-java-sdk-sms
+    implementation 'com.aliyun:aliyun-java-sdk-sms:3.0.0-rc1'
     // https://mvnrepository.com/artifact/com.bea.xml.stream/org.motechproject.com.bea.xml.stream
     implementation 'stax:stax:1.2.0'
     implementation 'com.baidu.aip:java-sdk:4.16.19'
