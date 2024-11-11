@@ -1,7 +1,6 @@
 package com.visionbagel.resources;
 
 import com.visionbagel.entitys.User;
-import com.visionbagel.payload.LoginBody;
 import com.visionbagel.payload.LoginForSMSBody;
 import com.visionbagel.payload.RegisterBody;
 import com.visionbagel.payload.ResultOfData;
@@ -54,7 +53,7 @@ public class SessionResource {
             schema = @Schema(
                 implementation = LoginForSMSBody.class,
                 properties = {
-                    @SchemaProperty(name = "data", type = SchemaType.ARRAY, implementation = User.class),
+                    @SchemaProperty(name = "data", type = SchemaType.OBJECT, implementation = User.class),
                 }
             )
         )

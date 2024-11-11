@@ -16,6 +16,7 @@ import org.jboss.resteasy.api.validation.ConstraintType;
 import org.jboss.resteasy.api.validation.ResteasyConstraintViolation;
 import org.jboss.resteasy.api.validation.ViolationReport;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -86,15 +87,16 @@ public class SessionRepository extends RepositoryBase<User> {
                 .find("mobile = ?1 and code = ?2", loginBody.mobile, loginBody.code)
                 .firstResultOptional();
 
+        Instant now = Instant.now();
         if(user.isPresent()) {
-            if(code.isPresent()) {
+            if(code.isPresent() && code.get().whenCreated.getEpochSecond() - now.getEpochSecond() < 120) {
                 User authUser = user.get();
                 tokenTools.generate(authUser, List.of("User"));
                 return authUser;
             } else {
                 return null;
             }
-        } else {
+        } else if(code.isPresent() && code.get().whenCreated.getEpochSecond() - now.getEpochSecond() < 120) {
             // create new user
             User newUser = new User();
             newUser.phoneNumber = loginBody.mobile;
@@ -102,6 +104,8 @@ public class SessionRepository extends RepositoryBase<User> {
             newUser.persistAndFlush();
             tokenTools.generate(newUser, List.of("User"));
             return newUser;
+        } else {
+            return null;
         }
     }
 
