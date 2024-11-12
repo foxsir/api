@@ -20,10 +20,16 @@ public class SmsCode extends PanacheEntityBase {
     public UUID id;
 
     @Column(length = 11, nullable = false)
+    @Schema(required = true)
     public String mobile;
 
     @Column(length = 4, nullable = false)
+    @Schema(required = true)
     public String code;
+
+    @Column()
+    @Schema(required = true, description = "是否有效, (使用过后变为无效)")
+    public boolean effective = true;
 
     @CreationTimestamp
     @Schema(description = "when created", required = true)
