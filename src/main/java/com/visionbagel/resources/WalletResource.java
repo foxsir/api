@@ -11,8 +11,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
 import java.util.Optional;
@@ -30,7 +32,10 @@ public class WalletResource {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            implementation = Wallet.class
+                            implementation = ResultOfData.class,
+                            properties = {
+                                    @SchemaProperty(name = "data", type = SchemaType.OBJECT, implementation = Wallet.class),
+                            }
                     )
             )
     )
@@ -45,7 +50,7 @@ public class WalletResource {
             ).build();
         } else {
             return Response.status(Response.Status.FORBIDDEN).entity(
-                new ResultOfData<>(new Wallet())
+                    new ResultOfData<>(new Wallet())
             ).build();
         }
     }

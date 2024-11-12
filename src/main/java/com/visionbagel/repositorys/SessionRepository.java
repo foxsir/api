@@ -84,7 +84,7 @@ public class SessionRepository extends RepositoryBase<User> {
     public User login(LoginForSMSBody loginBody) {
         Optional<User> user = User.find("username", loginBody.mobile).firstResultOptional();
         Optional<SmsCode> code = SmsCode
-                .find("mobile = ?1 and code = ?2", loginBody.mobile, loginBody.code)
+                .find("mobile = ?1 and code = ?2 and effective = true", loginBody.mobile, loginBody.code)
                 .firstResultOptional();
 
         Instant now = Instant.now();
@@ -92,6 +92,10 @@ public class SessionRepository extends RepositoryBase<User> {
             if(code.isPresent() && code.get().whenCreated.getEpochSecond() - now.getEpochSecond() < 120) {
                 User authUser = user.get();
                 tokenTools.generate(authUser, List.of("User"));
+
+                SmsCode smsCode = code.get();
+                smsCode.effective = false;
+                smsCode.persistAndFlush();
                 return authUser;
             } else {
                 return null;
@@ -103,6 +107,10 @@ public class SessionRepository extends RepositoryBase<User> {
             newUser.username = loginBody.mobile;
             newUser.persistAndFlush();
             tokenTools.generate(newUser, List.of("User"));
+
+            SmsCode smsCode = code.get();
+            smsCode.effective = false;
+            smsCode.persistAndFlush();
             return newUser;
         } else {
             return null;
