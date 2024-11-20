@@ -1,9 +1,13 @@
 package com.visionbagel.payload;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 public class ResultOfData<T> {
+    @Schema(required = true)
     public String message = "ok";
 
-    public Long code = 0L;
+    @Schema(required = true)
+    public Long code = 200L;
     public T data = null;
 
     public ResultOfData(T data) {
