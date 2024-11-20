@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -30,13 +31,17 @@ public class WalletRecord extends PanacheEntityBase {
      * (size/1024/1024*2/10) = 0.05411663055419922
      */
     @Schema(description = "The size of the data generated", required = true)
-    public Integer dataSize;
+    public long dataSize;
 
     @Schema(description = "cost", required = true)
-    public Integer cost;
+    public BigDecimal cost;
 
     @Schema(description = "cost type", required = true)
     public E_COST_TYPE costType;
+
+    @Column(length = 36, unique = true)
+    @Schema(description = "requestId")
+    public String requestId;
 
     @CreationTimestamp
     @Schema(description = "when created", required = true)
