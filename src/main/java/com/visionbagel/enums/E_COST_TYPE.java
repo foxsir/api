@@ -4,10 +4,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 public enum E_COST_TYPE {
     @Schema(description = "消费")
-    WOMEN("decrement"),
+    DECREMENT("decrement"),
 
     @Schema(description = "充值")
-    MAN("increment");
+    INCREMENT("increment");
 
     public final String label;
 
