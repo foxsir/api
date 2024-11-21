@@ -95,16 +95,16 @@ public class SessionResource {
     }
 
     @APIResponse(
-            responseCode = "200",
-            description = "successful",
-            content = @Content(
-                    schema = @Schema(
-                            implementation = ResultOfData.class,
-                            properties = {
-                                    @SchemaProperty(name = "data", type = SchemaType.OBJECT, implementation = User.class),
-                            }
-                    )
+        responseCode = "200",
+        description = "successful",
+        content = @Content(
+            schema = @Schema(
+                implementation = ResultOfData.class,
+                properties = {
+                    @SchemaProperty(name = "data", type = SchemaType.OBJECT, implementation = User.class),
+                }
             )
+        )
     )
     @GET
     @Path("user")
@@ -112,6 +112,7 @@ public class SessionResource {
     @Transactional
     public Response user() {
         User user = userRepository.authUser();
+        System.out.println("user");
         System.out.println(user);
         return Response.status(200).entity(new ResultOfData<>(user)).build();
     }

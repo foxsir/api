@@ -1,14 +1,11 @@
 package com.visionbagel.resources;
 
 import com.alipay.api.AlipayApiException;
-import com.baidu.aip.contentcensor.AipContentCensor;
 import com.visionbagel.entitys.Example;
-import com.visionbagel.entitys.User;
-import com.visionbagel.entitys.Wallet;
 import com.visionbagel.payload.PageParams;
 import com.visionbagel.payload.ResultOfPaging;
 import com.visionbagel.repositorys.ExampleRepository;
-import com.visionbagel.utils.alipay.AlipayTradeWapPay;
+import com.visionbagel.utils.Biller;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BeanParam;
@@ -28,9 +25,9 @@ import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.jboss.resteasy.api.validation.ViolationReport;
-import org.json.JSONObject;
 
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @OpenAPIDefinition(
     tags = {
@@ -81,13 +78,20 @@ public class ExampleResource {
     )
     @GET()
     @Transactional
-    @Produces(MediaType.TEXT_HTML)
+    @Produces(MediaType.TEXT_PLAIN)
     public String hello(@BeanParam Example params, @BeanParam PageParams pageParams) throws AlipayApiException {
 //        Wallet wallet = new Wallet();
 //        wallet.balance = 100;
 //        wallet.user = User.findById(UUID.fromString("36e149e3-ed38-42ef-83ca-fad1f9f10303"));
 //        wallet.persistAndFlush();
-        return "x";
+
+
+        System.out.println(
+            Math.round(Double.parseDouble("100.00"))
+        );
+
+//        BigDecimal b = Biller.calc(1000, 728, "fal-ai/flux/dev").setScale(2, RoundingMode.HALF_UP);
+        return "b.toString()";
         // return AlipayTradeWapPay.generateOrder();
     }
 }

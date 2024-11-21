@@ -43,3 +43,6 @@ nb-configuration.xml
 **/resources/jwt
 **/resources/alipay
 **/resources/alioss
+
+
+run.sh
