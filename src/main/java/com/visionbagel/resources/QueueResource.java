@@ -2,10 +2,14 @@ package com.visionbagel.resources;
 
 import ai.fal.client.exception.FalException;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.visionbagel.entitys.User;
 import com.visionbagel.entitys.Wallet;
+import com.visionbagel.entitys.WalletRecord;
+import com.visionbagel.enums.E_COST_TYPE;
 import com.visionbagel.payload.ResultOfData;
 import com.visionbagel.repositorys.UserRepository;
+import com.visionbagel.utils.Biller;
 import com.visionbagel.utils.ContentCensor;
 import com.visionbagel.utils.Translate;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -15,7 +19,6 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
@@ -27,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -61,6 +65,20 @@ public class QueueResource {
     @Inject
     public UserRepository userRepository;
 
+    @Path("status")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response status(@QueryParam("path") String path, @QueryParam("requestId") String requestId) {
+        var fal = FalClient.withEnvCredentials();
+        var result = fal.queue().status(path, QueueStatusOptions.withRequestId(requestId));
+
+        return Response
+            .status(HttpResponseStatus.OK.code())
+            .entity(result)
+            .build();
+    }
+
     @Path("result")
     @GET
     @Transactional
@@ -72,7 +90,7 @@ public class QueueResource {
             Gson gson = new Gson();
             var result = fal.queue().result(path, QueueResultOptions.withRequestId(requestId));
 
-            List<Map<String, String>> images = gson.fromJson(result.getData().get("images").toString(), List.class);
+            List<LinkedTreeMap<String, Object>> images = gson.fromJson(result.getData().get("images").toString(), List.class);
 
             User user = userRepository.authUser();
             Optional<Wallet> wallet = Wallet.find("user", user).firstResultOptional();
@@ -80,12 +98,29 @@ public class QueueResource {
 
             if(wallet.isPresent()) {
                 Wallet w = wallet.get();
-                System.out.println("cost");
+                WalletRecord record = new WalletRecord();
+                record.cost = BigDecimal.ZERO;
                 images.forEach(image -> {
-                    double cost = (double) image.get("url").length() /1024/1024/10*7*3;
-                    System.out.println(cost);
-                    w.balance = w.balance.subtract(BigDecimal.valueOf(cost));
+                    long width = Math.round(
+                        Double.parseDouble(images.getFirst().get("width").toString())
+                    );
+                    long height = Math.round(
+                        Double.parseDouble(images.getFirst().get("height").toString())
+                    );
+                    BigDecimal cost = Biller.calc(
+                        width,
+                        height,
+                        path
+                    ).setScale(2, RoundingMode.HALF_UP);
+                    w.balance = w.balance.subtract(cost);
+                    record.cost = record.cost.add(cost);
+                    record.dataSize += width * height;
                 });
+                record.user = user;
+                record.requestId = requestId;
+                record.costType = E_COST_TYPE.DECREMENT;
+                record.persistAndFlush();
+
                 w.persistAndFlush();
             }
 
@@ -101,17 +136,12 @@ public class QueueResource {
         }
     }
 
-    @ConfigProperty(name = "youdao.key")
-    String key;
-
-    @ConfigProperty(name = "youdao.secret")
-    String secret;
-
     @Path("submit")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response submit(@QueryParam("path") String path, Map<String, String> input) throws NoSuchAlgorithmException {
         var fal = FalClient.withEnvCredentials();
+        // input.put("output_format", "jpeg");
 
         try {
             Gson gson = new Gson();
