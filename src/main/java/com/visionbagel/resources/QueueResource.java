@@ -8,6 +8,7 @@ import com.visionbagel.entitys.Wallet;
 import com.visionbagel.entitys.WalletRecord;
 import com.visionbagel.enums.E_COST_TYPE;
 import com.visionbagel.payload.ResultOfData;
+import com.visionbagel.payload.SchemaInput;
 import com.visionbagel.repositorys.UserRepository;
 import com.visionbagel.utils.Biller;
 import com.visionbagel.utils.ContentCensor;
@@ -139,17 +140,17 @@ public class QueueResource {
     @Path("submit")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    public Response submit(@QueryParam("path") String path, Map<String, String> input) throws NoSuchAlgorithmException {
+    public Response submit(@QueryParam("path") String path, SchemaInput input) throws NoSuchAlgorithmException {
         var fal = FalClient.withEnvCredentials();
-        // input.put("output_format", "jpeg");
+         input.output_format = "png";
 
         try {
             Gson gson = new Gson();
-            ArrayList prompt = (ArrayList) gson.fromJson(translate.run(input.get("prompt"), "auto", "en"), Map.class).get("translation");
-            input.replace("prompt", prompt.getFirst().toString());
+            ArrayList prompt = (ArrayList) gson.fromJson(translate.run(input.prompt, "auto", "en"), Map.class).get("translation");
+            input.prompt = prompt.getFirst().toString();
 
             // 检查敏感词
-            if(!contentCensor.censor(input.get("prompt"))) {
+            if(!contentCensor.censor(input.prompt)) {
                 return Response
                         .status(HttpResponseStatus.BAD_REQUEST.code())
                         .entity(new ResultOfData<>().message("存在敏感词").code(HttpResponseStatus.BAD_REQUEST.code()))
@@ -172,10 +173,12 @@ public class QueueResource {
                         .build();
             }
 
+            System.out.println(gson.fromJson(gson.toJson(input), Map.class));
+
             var result = fal.queue().submit(
                     path,
                     QueueSubmitOptions.builder()
-                            .input(input)
+                            .input(gson.fromJson(gson.toJson(input), Map.class))
                             .build()
             );
 
