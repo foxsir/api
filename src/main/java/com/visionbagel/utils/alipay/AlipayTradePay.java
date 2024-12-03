@@ -40,7 +40,10 @@ public class AlipayTradePay {
         model.setSubject(String.join("", "充值:", num, "元"));
         model.setProductCode("FAST_INSTANT_TRADE_PAY");
         request.setBizModel(model);
-        // request.setNotifyUrl("");
+
+        if(!alipayProperties.notifyUrl().isEmpty()) {
+            request.setNotifyUrl(alipayProperties.notifyUrl());
+        }
         request.setReturnUrl(alipayProperties.returnUrl());
 
         AlipayTradePagePayResponse response = alipayClient.pageExecute(request, "POST");
