@@ -1,7 +1,6 @@
 package com.visionbagel.resources;
 
 import com.alipay.api.AlipayApiException;
-import com.visionbagel.config.AlipayProperties;
 import com.visionbagel.entitys.Trade;
 import com.visionbagel.entitys.Wallet;
 import com.visionbagel.payload.ResultOfData;
@@ -9,7 +8,6 @@ import com.visionbagel.payload.TopUpBody;
 import com.visionbagel.payload.TradePagePayBody;
 import com.visionbagel.repositorys.UserRepository;
 import com.visionbagel.utils.alipay.AlipayTradePay;
-import io.quarkus.arc.Lock;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -25,9 +23,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @Path("/payment")
 @RolesAllowed({"User"})
