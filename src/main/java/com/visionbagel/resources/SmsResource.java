@@ -1,13 +1,10 @@
 package com.visionbagel.resources;
 
-import com.alipay.api.AlipayApiException;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
 import com.visionbagel.payload.ResultOfData;
 import com.visionbagel.payload.SendCodeBody;
-import com.visionbagel.repositorys.ExampleRepository;
 import com.visionbagel.utils.SmsTools;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
