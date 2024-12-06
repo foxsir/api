@@ -12,9 +12,7 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
@@ -22,11 +20,10 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
-
+import org.jboss.resteasy.annotations.Form;
 import java.util.Optional;
 
 @Path("/payment")
-@RolesAllowed({"User"})
 public class PaymentResource {
 
     @Inject
@@ -34,6 +31,39 @@ public class PaymentResource {
 
     @Inject
     public AlipayTradePay alipayTradePay;
+
+    @Transactional
+    protected Trade checkTrade(TradePagePayBody data)  throws AlipayApiException {
+        Trade t = null;
+        if(AlipayTradePay.queryTrade(data).isSuccess()) {
+            if(AlipayTradePay.queryTrade(data).getTradeStatus().equals("TRADE_SUCCESS")) {
+                Optional<Trade> trade = Trade.find("tradeNo", data.out_trade_no).firstResultOptional();
+                if(trade.isPresent() && !trade.get().payStatus) {
+                    t = trade.get();
+
+                    if(String.valueOf(t.money).equals(data.total_amount)) {
+                        t.payStatus = true;
+                        t.persistAndFlush();
+
+                        Wallet w = Wallet.find("user", t.user).firstResult();
+                        if(w != null) {
+                            w.balance = w.balance.add(t.money);
+                            w.persistAndFlush();
+                        } else {
+                            w = new Wallet();
+                            w.balance = t.money;
+                            w.user = t.user;
+                            w.persistAndFlush();
+                        }
+                    }
+                } else if(trade.isPresent()) {
+                    t = trade.get();
+                }
+            }
+        }
+
+        return t;
+    }
 
     @APIResponse(
         responseCode = "200",
@@ -50,6 +80,7 @@ public class PaymentResource {
     )
     @POST()
     @Transactional
+    @RolesAllowed({"User"})
     @Produces(MediaType.APPLICATION_JSON)
     public Response pay(@Valid TopUpBody body) throws AlipayApiException {
         String check = TopUpBody.check(String.valueOf(body.money));
@@ -57,7 +88,7 @@ public class PaymentResource {
         if(check.isEmpty()) {
             return Response
                 .status(Response.Status.OK.getStatusCode())
-                .entity(new ResultOfData<>(alipayTradePay.generateOrder( String.valueOf(body.money) )))
+                .entity(new ResultOfData<>(alipayTradePay.generateOrder( String.valueOf(body.money), userRepository.authUser() )))
                 .build();
         } else {
             return Response
@@ -82,32 +113,27 @@ public class PaymentResource {
     )
     @POST()
     @Path("callback")
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     public Response callback(@Valid TradePagePayBody data) throws AlipayApiException {
-        Trade t = null;
-        if(AlipayTradePay.queryTrade(data).isSuccess()) {
-            if(AlipayTradePay.queryTrade(data).getTradeStatus().equals("TRADE_SUCCESS")) {
-                Optional<Trade> trade = Trade.find("tradeNo", data.out_trade_no).firstResultOptional();
-                if(trade.isPresent() && !trade.get().payStatus) {
-                    t = trade.get();
-                    if(String.valueOf(t.money).equals(data.total_amount)) {
-                        t.payStatus = true;
-                        t.persistAndFlush();
-
-                        Wallet w = Wallet.find("user", userRepository.authUser()).firstResult();
-                        if(w != null) {
-                            w.balance = w.balance.add(t.money);
-                            w.persistAndFlush();
-                        }
-                    }
-                }
-            }
-        }
+        Trade t = checkTrade(data);
 
         return Response
             .status(Response.Status.OK.getStatusCode())
             .entity(new ResultOfData<>(t))
             .build();
+    }
+
+    @POST()
+    @Path("notify")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED})
+    @Produces(MediaType.TEXT_PLAIN)
+    public String notify(@Form TradePagePayBody data) throws AlipayApiException {
+        Trade t = checkTrade(data);
+
+        if(t != null && t.payStatus) {
+            return "success";
+        } else {
+            return "fail";
+        }
     }
 }

@@ -12,6 +12,7 @@ import com.alipay.api.response.AlipayTradePagePayResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.visionbagel.config.AlipayProperties;
 import com.visionbagel.entitys.Trade;
+import com.visionbagel.entitys.User;
 import com.visionbagel.payload.TradePagePayBody;
 import com.visionbagel.utils.FileTools;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @ApplicationScoped
 public class AlipayTradePay {
@@ -30,7 +30,7 @@ public class AlipayTradePay {
 
     private static final Logger log = LoggerFactory.getLogger(AlipayTradePay.class);
 
-    public String generateOrder(String num) throws AlipayApiException {
+    public String generateOrder(String num, User user) throws AlipayApiException {
         AlipayClient alipayClient = new DefaultAlipayClient(AlipayTradePay.getAlipayConfig());
         AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
         AlipayTradePagePayModel model = new AlipayTradePagePayModel();
@@ -39,6 +39,9 @@ public class AlipayTradePay {
         model.setTotalAmount(num);
         model.setSubject(String.join("", "充值:", num, "元"));
         model.setProductCode("FAST_INSTANT_TRADE_PAY");
+        ExtUserInfo extUserInfo = new ExtUserInfo();
+        extUserInfo.setMobile(user.phoneNumber);
+        model.setExtUserInfo(extUserInfo);
         request.setBizModel(model);
 
         if(!alipayProperties.notifyUrl().isEmpty()) {
@@ -54,6 +57,7 @@ public class AlipayTradePay {
             Trade trade = new Trade();
             trade.tradeNo = tradeNo;
             trade.payStatus = false;
+            trade.user = user;
             trade.money = BigDecimal.valueOf(Long.parseLong(num));
             trade.persistAndFlush();
 
