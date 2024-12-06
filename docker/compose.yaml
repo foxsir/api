@@ -16,5 +16,7 @@ services:
         image: crpi-ghlb0lap2gtu95ve.cn-beijing.personal.cr.aliyuncs.com/visionbagel/visionbagel-api:latest
         container_name: visionbagel-api
         restart: always
+        environment:
+            JAVA_OPTS: -Dvertx.disableURIValidation=true -Dquarkus.profile=prod
         ports:
             - 8080:8080
