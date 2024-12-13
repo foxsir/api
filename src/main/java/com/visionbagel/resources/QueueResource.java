@@ -147,7 +147,7 @@ public class QueueResource {
         try {
             Gson gson = new Gson();
             ArrayList prompt = (ArrayList) gson.fromJson(translate.run(input.prompt, "auto", "en"), Map.class).get("translation");
-            input.prompt = prompt.getFirst().toString();
+            input.prompt = prompt.getFirst().toString().replaceAll(" ", "");
 
             // 检查敏感词
             if(!contentCensor.censor(input.prompt)) {
