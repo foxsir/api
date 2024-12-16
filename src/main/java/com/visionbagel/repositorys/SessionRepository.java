@@ -3,6 +3,7 @@ package com.visionbagel.repositorys;
 
 import com.visionbagel.entitys.SmsCode;
 import com.visionbagel.entitys.User;
+import com.visionbagel.entitys.Wallet;
 import com.visionbagel.payload.LoginBody;
 import com.visionbagel.payload.LoginForSMSBody;
 import com.visionbagel.payload.RegisterBody;
@@ -16,6 +17,7 @@ import org.jboss.resteasy.api.validation.ConstraintType;
 import org.jboss.resteasy.api.validation.ResteasyConstraintViolation;
 import org.jboss.resteasy.api.validation.ViolationReport;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +109,11 @@ public class SessionRepository extends RepositoryBase<User> {
             newUser.username = loginBody.mobile;
             newUser.persistAndFlush();
             tokenTools.generate(newUser, List.of("User"));
+
+            Wallet wallet = new Wallet();
+            wallet.balance = new BigDecimal(5);
+            wallet.user = newUser;
+            wallet.persistAndFlush();
 
             SmsCode smsCode = code.get();
             smsCode.effective = false;
