@@ -16,10 +16,6 @@ public class ResultOfPaging<T> {
     public List<T> records;
 
     public ResultOfPaging(PanacheQuery<T> panacheQuery, Page page) {
-        System.out.println("page.sizepage.sizepage.size");
-        System.out.println("page.sizepage.sizepage.size");
-        System.out.println("page.sizepage.sizepage.size");
-        System.out.println(page.size);
         PanacheQuery<T> query = panacheQuery.page(page.index - 1, page.size);
         currentPageNumber = page.index;
         lastPageNumber = query.pageCount();

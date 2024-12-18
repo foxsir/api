@@ -88,10 +88,10 @@ public class HistoryResource {
         return Response
                 .status(200)
                 .entity(
-                        new ResultOfPaging<>(
-                                History.find("user", Sort.by("whenCreated"), userRepository.authUser()),
-                                PageParams.of(pageParams)
-                        )
+                    new ResultOfPaging<>(
+                            History.find("user", Sort.by("whenCreated"), userRepository.authUser()),
+                            PageParams.of(pageParams)
+                    )
                 )
                 .build();
     }

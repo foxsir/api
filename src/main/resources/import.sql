@@ -11,7 +11,9 @@ INSERT INTO "public"."user_token" ("when_created", "when_deleted", "when_modifie
 INSERT INTO "public"."wallet" ("balance", "when_created", "when_deleted", "when_modified", "id", "user_id") VALUES (1, '2024-11-02 16:55:30.397166+08', NULL, '2024-11-02 16:55:30.397189+08', 'f850bc51-36c5-4a50-8a69-f4e9bc952d65', '36e149e3-ed38-42ef-83ca-fad1f9f10303');
 
 -- gen history
-INSERT INTO "public"."history" ("when_created", "when_deleted", "when_modified", "id", "user_id", "request_id", "prompt") VALUES ('2024-11-04 18:06:02.455234+08', NULL, '2024-11-04 18:06:02.455239+08', '5f74dc34-d9f9-4da5-b8cb-ae6beef2212e', '36e149e3-ed38-42ef-83ca-fad1f9f10303', 'c43ed5ed-78e1-45a9-a0b0-3ca0a06c6142', 'the black cat on table.');
+INSERT INTO "public"."history" ("when_created", "when_deleted", "when_modified", "id", "user_id", "request_id", "prompt") VALUES ('2024-12-18 19:48:12.635003+08', NULL, '2024-12-18 19:48:12.635011+08', '4301d95a-6f89-48a5-b43f-f637ae87e795', '36e149e3-ed38-42ef-83ca-fad1f9f10303', 'a70744f5-f142-4685-8046-ee11b883dfea', 'cat, print style');
+INSERT INTO "public"."fal_image" ("height", "when_created", "when_deleted", "when_modified", "width", "content_type", "id", "request_id", "url") VALUES (768, '2024-12-18 19:48:12.636208+08', NULL, '2024-12-18 19:48:12.636216+08', 1024, 'image/png', '65f249fb-a4d6-4fab-8851-b24eb51e6f81', 'a70744f5-f142-4685-8046-ee11b883dfea', 'http://visionbagel.media.microprofile.cn/a598bc7b-9223-4e7c-b0bc-66ea9233a040.png');
+-- end gen history
 
 -- sms
 INSERT INTO "public"."sms_code" ("code", "effective", "when_created", "when_deleted", "when_modified", "mobile", "id") VALUES ('1031', 't', '2024-11-12 16:13:04.195817+08', NULL, '2024-11-12 16:13:04.195827+08', '16631132230', '22ee50b8-d247-4424-98aa-20aced67d85d');

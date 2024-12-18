@@ -37,13 +37,14 @@ public class History extends PanacheEntityBase {
     @Schema(description = "prompt")
     public String prompt;
 
-    @Column(length = 36, unique = true)
+    @Column(length = 36, unique = true, nullable = false, name = "request_id")
     @Schema(description = "requestId")
     public String requestId;
 
     @Column()
     @Schema(description = "images")
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "request_id", referencedColumnName = "request_id")
     public List<FalImage> images = new ArrayList<>();
 
     @CreationTimestamp

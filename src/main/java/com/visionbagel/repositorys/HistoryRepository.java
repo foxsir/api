@@ -19,6 +19,7 @@ public class HistoryRepository extends RepositoryBase<History> {
 
     @Transactional
     public History create(History history) {
+        history.user = userRepository.authUser();
         history.persistAndFlush();
 
         ViolationReport violationReport = new ViolationReport();
