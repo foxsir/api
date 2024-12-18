@@ -2,12 +2,15 @@ package com.visionbagel.entitys;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import jakarta.persistence.*;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.hibernate.annotations.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,6 +40,11 @@ public class History extends PanacheEntityBase {
     @Column(length = 36, unique = true)
     @Schema(description = "requestId")
     public String requestId;
+
+    @Column()
+    @Schema(description = "images")
+    @OneToMany(cascade = CascadeType.ALL)
+    public List<FalImage> images = new ArrayList<>();
 
     @CreationTimestamp
     @Schema(description = "when created", required = true)

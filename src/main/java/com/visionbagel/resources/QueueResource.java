@@ -3,16 +3,14 @@ package com.visionbagel.resources;
 import ai.fal.client.exception.FalException;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.visionbagel.entitys.FalImage;
 import com.visionbagel.entitys.User;
 import com.visionbagel.entitys.Wallet;
 import com.visionbagel.entitys.WalletRecord;
 import com.visionbagel.enums.E_COST_TYPE;
-import com.visionbagel.payload.ResultOfData;
-import com.visionbagel.payload.SchemaInput;
+import com.visionbagel.payload.*;
 import com.visionbagel.repositorys.UserRepository;
-import com.visionbagel.utils.Biller;
-import com.visionbagel.utils.ContentCensor;
-import com.visionbagel.utils.Translate;
+import com.visionbagel.utils.*;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -20,6 +18,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
@@ -30,11 +29,11 @@ import ai.fal.client.queue.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
 
 @OpenAPIDefinition(
     tags = {
@@ -57,6 +56,9 @@ public class QueueResource {
 
     private static final Logger log = LoggerFactory.getLogger(QueueResource.class);
 
+    @ConfigProperty(name = "alioss.domain")
+    public String ossDomain;
+
     @Inject
     public Translate translate;
 
@@ -76,7 +78,7 @@ public class QueueResource {
 
         return Response
             .status(HttpResponseStatus.OK.code())
-            .entity(result)
+            .entity(new ResultOfData<>(result))
             .build();
     }
 
@@ -96,17 +98,20 @@ public class QueueResource {
             User user = userRepository.authUser();
             Optional<Wallet> wallet = Wallet.find("user", user).firstResultOptional();
 
+            List<FalImage> imageList = new ArrayList<>();
 
             if(wallet.isPresent()) {
                 Wallet w = wallet.get();
                 WalletRecord record = new WalletRecord();
                 record.cost = BigDecimal.ZERO;
+                StorageForOSS oss = new StorageForOSS();
+
                 images.forEach(image -> {
                     long width = Math.round(
-                        Double.parseDouble(images.getFirst().get("width").toString())
+                        Double.parseDouble(image.get("width").toString())
                     );
                     long height = Math.round(
-                        Double.parseDouble(images.getFirst().get("height").toString())
+                        Double.parseDouble(image.get("height").toString())
                     );
                     BigDecimal cost = Biller.calc(
                         width,
@@ -116,6 +121,19 @@ public class QueueResource {
                     w.balance = w.balance.subtract(cost);
                     record.cost = record.cost.add(cost);
                     record.dataSize += width * height;
+
+                    try {
+                        String objectName = oss.updateBase64(image.get("url").toString());
+                        String url = String.join("/", ossDomain, objectName);
+                        FalImage fi = new FalImage();
+                        fi.content_type = image.get("content_type").toString();
+                        fi.width = width;
+                        fi.height = height;
+                        fi.url = url;
+                        imageList.add(fi);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 });
                 record.user = user;
                 record.requestId = requestId;
@@ -127,8 +145,8 @@ public class QueueResource {
 
             return Response
                     .status(HttpResponseStatus.OK.code())
-                    .entity(gson.toJson(result)).build();
-
+                    .entity(new ResultOfData<>(new FalResult(result, imageList)))
+                    .build();
         } catch (FalException e) {
             return Response
                     .status(HttpResponseStatus.BAD_REQUEST.code())

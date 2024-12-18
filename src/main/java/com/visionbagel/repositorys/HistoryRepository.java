@@ -18,12 +18,7 @@ public class HistoryRepository extends RepositoryBase<History> {
     UserRepository userRepository;
 
     @Transactional
-    public History create(History data) {
-        History history = new History();
-        history.user = userRepository.authUser();
-        history.requestId = data.requestId;
-        history.prompt = data.prompt;
-
+    public History create(History history) {
         history.persistAndFlush();
 
         ViolationReport violationReport = new ViolationReport();

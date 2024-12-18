@@ -5,7 +5,6 @@ import com.visionbagel.payload.PageParams;
 import com.visionbagel.payload.ResultOfPaging;
 import com.visionbagel.repositorys.HistoryRepository;
 import com.visionbagel.repositorys.UserRepository;
-import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -84,6 +83,7 @@ public class HistoryResource {
     )
     @GET()
     @Produces(MediaType.APPLICATION_JSON)
+    @Transactional
     public Response get(@BeanParam PageParams pageParams) {
         return Response
                 .status(200)

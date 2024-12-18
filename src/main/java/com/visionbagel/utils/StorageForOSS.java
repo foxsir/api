@@ -4,13 +4,11 @@ import com.aliyun.oss.*;
 import com.aliyun.oss.common.auth.CredentialsProvider;
 import com.aliyun.oss.common.auth.DefaultCredentialProvider;
 import com.aliyun.oss.common.comm.SignVersion;
-import com.aliyun.oss.model.DeleteObjectsRequest;
-import com.aliyun.oss.model.DeleteObjectsResult;
-import com.aliyun.oss.model.ObjectMetadata;
-import com.aliyun.oss.model.PutObjectRequest;
+import com.aliyun.oss.model.*;
 import com.visionbagel.payload.SingleFileBody;
+import org.apache.commons.io.FileUtils;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +22,8 @@ public class StorageForOSS {
 
         try {
             // 创建PutObjectRequest对象。
-            // PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, new ByteArrayInputStream(content.getBytes()));
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, data.file);
+            // PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName, data.file);
 
             // 如果需要上传时设置存储类型和访问权限，请参考以下示例代码。
             // ObjectMetadata metadata = new ObjectMetadata();
@@ -62,6 +60,26 @@ public class StorageForOSS {
         DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName).withKeys(List.of(objectName));
         DeleteObjectsResult deleteObjectsResult = ossClient.deleteObjects(deleteObjectsRequest);
         return deleteObjectsResult.getResponse().getStatusCode();
+    }
+
+    public String updateBase64(String content) throws IOException {
+        InputStream inputStream = MediaTools.base64ToImageInputStream(content);
+
+        String extName = MediaTools.getImageExtensionName(
+            MediaTools.base64ToImageInputStream(content)
+        );
+        File tmp = new File(String.format("/tmp/%s.%s", UUID.randomUUID(), extName));
+        FileUtils.writeByteArrayToFile(tmp, inputStream.readAllBytes());
+
+        SingleFileBody singleFileBody = new SingleFileBody();
+        singleFileBody.file = tmp;
+        String name = this.upload(singleFileBody);
+        inputStream.close();
+        if(tmp.delete()) {
+            return name;
+        } else {
+            return null;
+        }
     }
 
     private OSS getClient() {
