@@ -1,17 +1,17 @@
 services:
-    db:
-        image: crpi-ghlb0lap2gtu95ve.cn-beijing.personal.cr.aliyuncs.com/microprofile/postgres:17.2
-        container_name: postgres-db
-        restart: always
-        # set shared memory limit when using docker-compose
-        shm_size: 128mb
-        # or set shared memory limit when deploy via swarm stack
-        environment:
-            POSTGRES_USER: postgres
-            POSTGRES_PASSWORD: postgres
-            POSTGRES_DB: visionbagel
-        ports:
-            - 5432:5432
+#    db:
+#        image: crpi-ghlb0lap2gtu95ve.cn-beijing.personal.cr.aliyuncs.com/microprofile/postgres:17.2
+#        container_name: postgres-db
+#        restart: always
+#        # set shared memory limit when using docker-compose
+#        shm_size: 128mb
+#        # or set shared memory limit when deploy via swarm stack
+#        environment:
+#            POSTGRES_USER: postgres
+#            POSTGRES_PASSWORD: postgres
+#            POSTGRES_DB: visionbagel
+#        ports:
+#            - 5432:5432
     app:
         image: crpi-ghlb0lap2gtu95ve.cn-beijing.personal.cr.aliyuncs.com/visionbagel/visionbagel-api:latest
         container_name: visionbagel-api
