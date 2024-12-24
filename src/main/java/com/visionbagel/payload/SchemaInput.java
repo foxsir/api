@@ -26,6 +26,11 @@ public class SchemaInput {
     public String image_size;
 
     /**
+     * The ratio of the generated image. Default value: 16:9
+     */
+    public String aspect_ratio;
+
+    /**
      * The number of inference steps to perform. Default value: 40
      */
     public int num_inference_steps;
