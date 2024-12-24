@@ -19,7 +19,7 @@ public class FalImage extends PanacheEntityBase {
     @Schema(required = true)
     public UUID id;
 
-    @Column(length = 36, unique = true, nullable = false, name = "request_id")
+    @Column(length = 36, nullable = false, name = "request_id")
     @Schema(description = "requestId")
     public String requestId;
 
