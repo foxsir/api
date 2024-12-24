@@ -89,7 +89,7 @@ public class HistoryResource {
                 .status(200)
                 .entity(
                     new ResultOfPaging<>(
-                            History.find("user", Sort.by("whenCreated"), userRepository.authUser()),
+                            History.find("user", Sort.descending("whenCreated"), userRepository.authUser()),
                             PageParams.of(pageParams)
                     )
                 )
