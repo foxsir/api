@@ -160,12 +160,13 @@ public class QueueResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response submit(@QueryParam("path") String path, SchemaInput input) throws NoSuchAlgorithmException {
         var fal = FalClient.withEnvCredentials();
-         input.output_format = "png";
-
+        input.output_format = "png";
         try {
             Gson gson = new Gson();
             ArrayList prompt = (ArrayList) gson.fromJson(translate.run(input.prompt, "auto", "en"), Map.class).get("translation");
-            input.prompt = prompt.getFirst().toString().replaceAll(" ", "");
+            input.prompt = prompt.getFirst().toString()
+                .replaceAll("< ", "<")
+                .replaceAll(" >", ">");
 
             // 检查敏感词
             if(!contentCensor.censor(input.prompt)) {
@@ -190,8 +191,6 @@ public class QueueResource {
                         .entity(new ResultOfData<>().message("余额不足, 请充值").code(HttpResponseStatus.BAD_REQUEST.code()))
                         .build();
             }
-
-            System.out.println(gson.fromJson(gson.toJson(input), Map.class));
 
             var result = fal.queue().submit(
                     path,
