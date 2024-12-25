@@ -12,6 +12,7 @@ import com.visionbagel.payload.*;
 import com.visionbagel.repositorys.UserRepository;
 import com.visionbagel.utils.*;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.quarkus.narayana.jta.runtime.TransactionConfiguration;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -85,13 +86,18 @@ public class QueueResource {
     @Path("result")
     @GET
     @Transactional
+    @TransactionConfiguration(timeout = 10000)
     @Produces(MediaType.APPLICATION_JSON)
     public Response result(@QueryParam("path") String path, @QueryParam("requestId") String requestId) {
         var fal = FalClient.withEnvCredentials();
 
         try {
+            long queueStart = new Date().getTime();
             Gson gson = new Gson();
             var result = fal.queue().result(path, QueueResultOptions.withRequestId(requestId));
+            System.out.println("========queue().result=========");
+            System.out.println("========queue().result=========");
+            System.out.println((new Date().getTime() - queueStart) / 1000);
 
             List<LinkedTreeMap<String, Object>> images = gson.fromJson(result.getData().get("images").toString(), List.class);
 
@@ -123,7 +129,12 @@ public class QueueResource {
                     record.dataSize += width * height;
 
                     try {
+                        long updateStart = new Date().getTime();
                         String objectName = oss.updateBase64(image.get("url").toString());
+                        System.out.println("========updateStart=========");
+                        System.out.println("========updateStart=========");
+                        System.out.println((new Date().getTime() - updateStart) / 1000);
+
                         String url = String.join("/", ossDomain, objectName);
                         FalImage fi = new FalImage();
                         fi.content_type = image.get("content_type").toString();
