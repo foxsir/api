@@ -33,7 +33,7 @@ public class History extends PanacheEntityBase {
     @JsonIgnore
     public User user;
 
-    @Column(length = 500)
+    @Column(length = 1000)
     @Schema(description = "prompt")
     public String prompt;
 
